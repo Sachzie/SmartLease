@@ -11,7 +11,35 @@ $res_Uname = isset($tenant['name']) ? $tenant['name'] : '';
 $res_Email = isset($tenant['email']) ? $tenant['email'] : '';
 $showNotification = empty($tenant['date_of_birth']);
 
-$properties = mysqli_query($conn, "SELECT property_id, name, location, bedrooms, bathrooms, price, availability, images FROM properties") or die('Query failed');
+$location = isset($_GET['location']) ? $_GET['location'] : '';
+$bedrooms = isset($_GET['bedrooms']) ? $_GET['bedrooms'] : '';
+$bathrooms = isset($_GET['bathrooms']) ? $_GET['bathrooms'] : '';
+$price = isset($_GET['price']) ? $_GET['price'] : '';
+
+$query = "SELECT property_id, name, location, bedrooms, bathrooms, price, availability, images FROM properties WHERE 1=1";
+
+if ($location) {
+    $query .= " AND location LIKE '%$location%'";
+}
+if ($bedrooms) {
+    $query .= " AND bedrooms = '$bedrooms'";
+}
+if ($bathrooms) {
+    $query .= " AND bathrooms = '$bathrooms'";
+}
+if ($price) {
+    if ($price == '0-5000') {
+        $query .= " AND price BETWEEN 0 AND 5000";
+    } elseif ($price == '5000-10000') {
+        $query .= " AND price BETWEEN 5000 AND 10000";
+    } elseif ($price == '10000-20000') {
+        $query .= " AND price BETWEEN 10000 AND 20000";
+    } elseif ($price == '20000+') {
+        $query .= " AND price > 20000";
+    }
+}
+
+$properties = mysqli_query($conn, $query) or die('Query failed');
 $property_details = [];
 while ($row = mysqli_fetch_assoc($properties)) {
     $property_details[] = $row;
@@ -158,33 +186,33 @@ while ($row = mysqli_fetch_assoc($properties)) {
 
 <div class="container">
   <div class="search-container">
-    <div class="search-bar">
-      <input type="text" name="location" id="location" placeholder="Location">
+    <form class="search-bar" method="GET" action="home.php">
+      <input type="text" name="location" id="location" placeholder="Location" value="<?php echo htmlspecialchars($location); ?>">
       <label for="bedrooms">Bedrooms:</label>
-      <select id="bedrooms">
+      <select id="bedrooms" name="bedrooms">
         <option value="">Any</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3+</option>
+        <option value="1" <?php if ($bedrooms == '1') echo 'selected'; ?>>1</option>
+        <option value="2" <?php if ($bedrooms == '2') echo 'selected'; ?>>2</option>
+        <option value="3" <?php if ($bedrooms == '3') echo 'selected'; ?>>3+</option>
       </select>
       <label for="bathrooms">Bathrooms:</label>
-      <select id="bathrooms">
+      <select id="bathrooms" name="bathrooms">
         <option value="">Any</option>
-        <option value="1">1</option>
-        <option value="2">2</option>
-        <option value="3">3+</option>
+        <option value="1" <?php if ($bathrooms == '1') echo 'selected'; ?>>1</option>
+        <option value="2" <?php if ($bathrooms == '2') echo 'selected'; ?>>2</option>
+        <option value="3" <?php if ($bathrooms == '3') echo 'selected'; ?>>3+</option>
       </select>
       <label for="price">Price Range:</label>
-      <select id="price">
+      <select id="price" name="price">
         <option value="">Any</option>
-        <option value="0-5000">₱0 - ₱5,000</option>
-        <option value="5000-10000">₱5,000 - ₱10,000</option>
-        <option value="10000-20000">₱10,000 - ₱20,000</option>
-        <option value="20000+">₱20,000+</option>
+        <option value="0-5000" <?php if ($price == '0-5000') echo 'selected'; ?>>₱0 - ₱5,000</option>
+        <option value="5000-10000" <?php if ($price == '5000-10000') echo 'selected'; ?>>₱5,000 - ₱10,000</option>
+        <option value="10000-20000" <?php if ($price == '10000-20000') echo 'selected'; ?>>₱10,000 - ₱20,000</option>
+        <option value="20000+" <?php if ($price == '20000+') echo 'selected'; ?>>₱20,000+</option>
       </select>
-      <button class="clear-btn" onclick="clearSearch()">Clear</button>
-      <button class="search-btn" onclick="searchProperties()">Search</button>
-    </div>
+      <button type="button" class="clear-btn" onclick="clearSearch()">Clear</button>
+      <button type="submit" class="search-btn">Search</button>
+    </form>
   </div>
 
   <h1>Available Properties</h1>
@@ -226,6 +254,7 @@ while ($row = mysqli_fetch_assoc($properties)) {
     document.getElementById('bedrooms').value = '';
     document.getElementById('bathrooms').value = '';
     document.getElementById('price').value = '';
+    window.location.href = 'home.php';
   }
   function searchProperties() {
     // Implement search functionality as needed.

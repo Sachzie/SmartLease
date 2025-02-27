@@ -11,11 +11,63 @@ if (!isset($_SESSION['landlord_id'])) {
 
 $landlord_id = $_SESSION['landlord_id'];
 
+// Handle lease resolution
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['application_id'])) {
+    $application_id = intval($_POST['application_id']);
+
+    // Fetch tenant_id, property_id from lease application
+    $query = "SELECT la.tenant_id, la.property_id, p.price 
+              FROM lease_applications la
+              JOIN properties p ON la.property_id = p.property_id
+              WHERE la.application_id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("i", $application_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    
+    if ($result->num_rows === 0) {
+        $error = "Application not found.";
+    } else {
+        $row = $result->fetch_assoc();
+        $tenant_id = $row['tenant_id'];
+        $property_id = $row['property_id'];
+        $rent_amount = $row['price'];
+
+        // Start transaction
+        $conn->begin_transaction();
+        try {
+            // Insert new lease
+            $insertLease = "
+                INSERT INTO leases (tenant_id, property_id, landlord_id, start_date, end_date, rent_amount, status) 
+                VALUES (?, ?, ?, CURDATE(), DATE_ADD(CURDATE(), INTERVAL 1 YEAR), ?, 'active')";
+            $stmt = $conn->prepare($insertLease);
+            $stmt->bind_param("iiid", $tenant_id, $property_id, $landlord_id, $rent_amount);
+            $stmt->execute();
+
+            // Mark the lease application as "Resolved"
+            $updateApplication = "
+                UPDATE lease_applications 
+                SET status = 'resolved' 
+                WHERE application_id = ?";
+            $stmt = $conn->prepare($updateApplication);
+            $stmt->bind_param("i", $application_id);
+            $stmt->execute();
+
+            // Commit transaction
+            $conn->commit();
+            $success = "Lease successfully created and application resolved.";
+        } catch (Exception $e) {
+            $conn->rollback();
+            $error = "Failed to create lease.";
+        }
+    }
+}
+
 // Fetch applications for landlord's properties
 $query = "
     SELECT la.application_id, la.status, 
-           t.name AS tenant_name, t.email AS tenant_email, 
-           p.name AS property_name
+           t.tenant_id, t.name AS tenant_name, t.email AS tenant_email, 
+           p.property_id, p.name AS property_name
     FROM lease_applications la
     JOIN tenants t ON la.tenant_id = t.tenant_id
     JOIN properties p ON la.property_id = p.property_id
@@ -34,56 +86,20 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Applications</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 80%;
-            margin: 20px auto;
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 12px;
-            border-bottom: 1px solid #ddd;
-            text-align: left;
-        }
-        th {
-            background: #007bff;
-            color: white;
-        }
-        .check-btn {
-            background-color: #28a745;
-            color: white;
-            padding: 8px 12px;
-            text-decoration: none;
-            border-radius: 4px;
-            border: none;
-            cursor: pointer;
-        }
-        .check-btn:hover {
-            background-color: #218838;
-        }
-        .status-pending { color: orange; }
-        .status-approved { color: green; }
-        .status-rejected { color: red; }
-    </style>
 </head>
 <body>
 
 <div class="container">
     <h2>Tenant Lease Applications</h2>
+    
+    <?php if (isset($success)): ?>
+        <p style="color: green;"><?php echo htmlspecialchars($success); ?></p>
+    <?php endif; ?>
+    
+    <?php if (isset($error)): ?>
+        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
+    <?php endif; ?>
+
     <table>
         <tr>
             <th>Property</th>
@@ -97,12 +113,16 @@ $result = $stmt->get_result();
             <td><?php echo htmlspecialchars($row['property_name']); ?></td>
             <td><?php echo htmlspecialchars($row['tenant_name']); ?></td>
             <td><?php echo htmlspecialchars($row['tenant_email']); ?></td>
-            <td class="status-<?php echo strtolower($row['status']); ?>">
-                <?php echo ucfirst($row['status']); ?>
-            </td>
+            <td><?php echo ucfirst($row['status']); ?></td>
             <td>
-            <a href="view.php?application_id=<?php echo $row['application_id']; ?>" class="check-btn">Check</a>
-
+                <a href="view.php?application_id=<?php echo $row['application_id']; ?>">Check</a>
+                
+                <?php if (strtolower($row['status']) === "in progress"): ?>
+                    <form method="POST" action="" style="display:inline;">
+                        <input type="hidden" name="application_id" value="<?php echo $row['application_id']; ?>">
+                        <button type="submit">Resolve</button>
+                    </form>
+                <?php endif; ?>
             </td>
         </tr>
         <?php endwhile; ?>

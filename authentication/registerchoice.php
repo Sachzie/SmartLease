@@ -64,7 +64,7 @@ session_start();
         <header>Register as...</header>
         <a href="landlordregister.php" class="choice-button">Landlord</a>
         <a href="tenantregister.php" class="choice-button">Tenant</a>
-        <a href="../login.php" class="back-link">Back to Login</a>
+        <a href="login.php" class="back-link">Back to Login</a>
     </div>
 </body>
 </html>

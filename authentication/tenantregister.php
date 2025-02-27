@@ -16,6 +16,11 @@
             $message[] = 'All fields are required.';
         }
 
+        // Validate name format
+        if (!preg_match("/^[a-zA-Z\s]+$/", $name)) {
+            $message[] = 'Full Name should contain letters and spaces only.';
+        }
+
         // Validate email format
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $message[] = 'Invalid email format.';

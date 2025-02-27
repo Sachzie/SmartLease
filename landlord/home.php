@@ -11,6 +11,25 @@ $landlord = mysqli_fetch_assoc($query);
 $res_Uname = isset($landlord['name']) ? htmlspecialchars($landlord['name']) : 'Landlord';
 $res_Email = isset($landlord['email']) ? htmlspecialchars($landlord['email']) : 'No Email';
 $showNotification = false; // Change logic based on need
+
+// Fetch tenants
+$tenants_query = mysqli_query($conn, "SELECT name FROM tenants") or die('Query failed');
+$tenants = [];
+while ($tenant = mysqli_fetch_assoc($tenants_query)) {
+    $tenants[] = [
+        'name' => htmlspecialchars($tenant['name']),
+    ];
+}
+
+// Fetch properties
+$properties_query = mysqli_query($conn, "SELECT name, location FROM properties WHERE landlord_id = '$landlord_id'") or die('Query failed');
+$properties = [];
+while ($property = mysqli_fetch_assoc($properties_query)) {
+    $properties[] = [
+        'name' => htmlspecialchars($property['name']),
+        'location' => htmlspecialchars($property['location'])
+    ];
+}
 ?> 
 
 <!DOCTYPE html>
@@ -118,25 +137,39 @@ $showNotification = false; // Change logic based on need
     <p>Your email: <b><?php echo $res_Email; ?></b></p>
     <p>Manage your Properties, View Tenants, and more!.</p>
     <div class="dashboard-cards">
-        <a href="tenantsview.php" class="card-link">
+        <a href="viewtenants/tenantsview.php" class="card-link">
             <div class="card">
                 <h3>Tenants</h3>
                 <p>View and manage all tenants renting your properties.</p>
+                <div class="tenants-list">
+                    <?php foreach ($tenants as $tenant): ?>
+                        <div class="tenant">
+                            <span><?php echo $tenant['name']; ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </a>
-        <a href="billing.php" class="card-link">
+        <a href="payments/billing.php" class="card-link">
             <div class="card">
                 <h3>Billing Notifications</h3>
                 <p>Stay updated on pending and upcoming payments.</p>
             </div>
         </a>
-        <a href="properties.php" class="card-link">
+        <a href="manageproperties/crudindex.php" class="card-link">
             <div class="card">
                 <h3>Properties</h3>
                 <p>Monitor available and occupied apartments.</p>
+                <div class="properties-list">
+                    <?php foreach ($properties as $property): ?>
+                        <div class="property">
+                            <span><?php echo $property['name']; ?> - <?php echo $property['location']; ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </a>
-        <a href="maintenance.php" class="card-link">
+        <a href="maintenance/maintenance.php" class="card-link">
             <div class="card">
                 <h3>Maintenance</h3>
                 <p>Track maintenance requests and completed work.</p>

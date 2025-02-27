@@ -26,30 +26,35 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $address = $_POST['address'];
     $phone = $_POST['phone'];
 
-// Handle profile picture upload
-$uploadDir = realpath(__DIR__ . '/../../profile/uploaded_image/') . '/';
-$picture = $tenant['picture']; // Default to existing picture
-
-    if (!empty($_FILES["picture"]["name"])) {
-        $file_name = basename($_FILES["picture"]["name"]);
-        $target_file = $uploadDir . $file_name;
-        $db_file_path = "profile/uploaded_image/" . $file_name; // Relative path for database
-
-        // Move uploaded file
-        if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
-            $picture = $db_file_path;
-        }
-    }
-
-    // Update tenant profile
-    $update_query = "UPDATE tenants SET date_of_birth = ?, sex = ?, address = ?, phone = ?, picture = ? WHERE tenant_id = ?";
-    $update_stmt = $conn->prepare($update_query);
-    $update_stmt->bind_param("sssssi", $date_of_birth, $sex, $address, $phone, $picture, $tenant_id);
-
-    if ($update_stmt->execute()) {
-        $message = "Profile updated successfully!";
+    // Validate phone number
+    if (!preg_match("/^0[0-9]{10}$/", $phone)) {
+        $message = "Invalid phone number. Please enter exactly 11 digits starting with 0.";
     } else {
-        $message = "Error updating profile.";
+        // Handle profile picture upload
+        $uploadDir = realpath(__DIR__ . '/../../profile/uploaded_image/') . '/';
+        $picture = $tenant['picture']; // Default to existing picture
+
+        if (!empty($_FILES["picture"]["name"])) {
+            $file_name = basename($_FILES["picture"]["name"]);
+            $target_file = $uploadDir . $file_name;
+            $db_file_path = "profile/uploaded_image/" . $file_name; // Relative path for database
+
+            // Move uploaded file
+            if (move_uploaded_file($_FILES["picture"]["tmp_name"], $target_file)) {
+                $picture = $db_file_path;
+            }
+        }
+
+        // Update tenant profile
+        $update_query = "UPDATE tenants SET date_of_birth = ?, sex = ?, address = ?, phone = ?, picture = ? WHERE tenant_id = ?";
+        $update_stmt = $conn->prepare($update_query);
+        $update_stmt->bind_param("sssssi", $date_of_birth, $sex, $address, $phone, $picture, $tenant_id);
+
+        if ($update_stmt->execute()) {
+            $message = "Profile updated successfully!";
+        } else {
+            $message = "Error updating profile.";
+        }
     }
 }
 
@@ -203,7 +208,7 @@ $picture = $tenant['picture']; // Default to existing picture
 
             <div class="form-group">
                 <label>Phone:</label>
-                <input type="text" name="phone" value="<?php echo $tenant['phone']; ?>">
+                <input type="text" name="phone" value="<?php echo $tenant['phone']; ?>" pattern="0[0-9]{10}" title="Please enter exactly 11 digits starting with 0">
             </div>
 
             <div class="form-group">

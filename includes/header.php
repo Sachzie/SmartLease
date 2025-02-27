@@ -4,7 +4,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$base_url = "/SmartLease/tenant";
+$base_url = "/SmartLease/homepage";
 ?>
 
 <header>
@@ -24,7 +24,7 @@ $base_url = "/SmartLease/tenant";
             <li><a href="<?php echo $base_url; ?>/home.php">📊 Overview</a></li>
             
             <li class="menu-header">Lease Management</li>
-            <li><a href="<?php echo $base_url; ?>/lease/view.php">🏠 My Lease</a></li>
+            <li><a href="<?php echo $base_url; ?>/mylease/lease.php">🏠 My Lease</a></li>
             <li><a href="<?php echo $base_url; ?>/lease/payments.php">💰 Payments</a></li>
             
             <li class="menu-header">Maintenance & Support</li>
@@ -120,7 +120,7 @@ $base_url = "/SmartLease/tenant";
     #menu ul li {
         padding: 15px;
         text-align: left;
-        border-bottom: 1px solid rgba(80, 75, 56, 0.2);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
     }
 
     #menu ul li a {
