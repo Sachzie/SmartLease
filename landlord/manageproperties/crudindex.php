@@ -19,6 +19,7 @@ or die(mysqli_error($conn));
     <title>Manage Properties - SmartLease</title>
     <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
+       <style>
         * {
             margin: 0;
             padding: 0;
@@ -47,17 +48,23 @@ or die(mysqli_error($conn));
 
         .property-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 20px;
+            justify-content: center;
         }
 
         .property-card {
             background: white;
+            width: 360px;
+            height: 550px;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s;
             position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .property-card:hover {
@@ -75,7 +82,7 @@ or die(mysqli_error($conn));
 
         .carousel img {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: cover;
             display: none;
         }
@@ -102,6 +109,33 @@ or die(mysqli_error($conn));
         .carousel .next {
             right: 10px;
         }
+        .property-info {
+            flex-grow: 1;
+            margin-top: 15px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .property-actions {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+
+        .property-actions a {
+            padding: 5px 10px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .edit { background: rgb(255, 191, 0); color: white; }
+        .delete { background: rgb(220, 53, 69); color: white; }
 
         .status {
             display: inline-block;
@@ -110,6 +144,7 @@ or die(mysqli_error($conn));
             font-weight: bold;
             text-transform: capitalize;
         }
+
 
         .available { background: #28a745; color: white; }
         .rented { background: #dc3545; color: white; }
