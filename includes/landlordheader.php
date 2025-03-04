@@ -1,3 +1,4 @@
+
 <?php
 
 $base_url = "/SmartLease/landlord";
@@ -25,7 +26,16 @@ $base_url = "/SmartLease/landlord";
             </li>
             <li><a href="<?php echo $base_url; ?>/applications/viewapplications.php">View Applications</a></li>
             <li><a href="<?php echo $base_url; ?>/viewtenants/tenantsview.php">View Tenants</a></li>
-            <li><a href="<?php echo $base_url; ?>/payments/billing.php">Payments</a></li>
+            
+            <!-- Payments Section -->
+            <li class="dropdown">
+                <a href="#" onclick="toggleDropdown(event)">Payments ▾</a>
+                <ul class="submenu">
+                    <li><a href="<?php echo $base_url; ?>/payments/billing.php">Payment Notices</a></li>
+                    <li><a href="<?php echo $base_url; ?>/payments/confirmation.php">Payment Confirmation</a></li>
+                </ul>
+            </li>
+
             <li><a href="<?php echo $base_url; ?>/maintenance/maintenance.php">Maintenance Requests</a></li>
             <li><a href="<?php echo $base_url; ?>/reports/reports.php">Reports</a></li>
             <li><a href="<?php echo $base_url; ?>/profile/edit.php">Edit Profile</a></li>

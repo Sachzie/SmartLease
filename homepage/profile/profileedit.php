@@ -51,6 +51,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $update_stmt->bind_param("sssssi", $date_of_birth, $sex, $address, $phone, $picture, $tenant_id);
 
         if ($update_stmt->execute()) {
+            // Refresh the tenant data after update
+            $query = "SELECT * FROM tenants WHERE tenant_id = ?";
+            $stmt = $conn->prepare($query);
+            $stmt->bind_param("i", $tenant_id);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $tenant = $result->fetch_assoc();
+
             $message = "Profile updated successfully!";
         } else {
             $message = "Error updating profile.";
@@ -179,17 +187,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <div class="profile-section">
             <label>Current Profile Picture:</label>
-            <?php if (!empty($tenant['picture'])): ?>
-                <img src="<?php echo $tenant['picture']; ?>" class="profile-pic" id="profilePreview">
-            <?php else: ?>
-                <img src="default-avatar.png" class="profile-pic" id="profilePreview">
-            <?php endif; ?>
+            <?php 
+            $profilePic = !empty($tenant['picture']) && file_exists('../../' . $tenant['picture']) ? '../../' . $tenant['picture'] : 'default-avatar.png';
+            ?>
+            <img src="<?php echo $profilePic; ?>" class="profile-pic" id="profilePreview">
         </div>
 
         <form method="post" enctype="multipart/form-data">
             <div class="form-group">
                 <label>Date of Birth:</label>
-                <input type="date" name="date_of_birth" value="<?php echo $tenant['date_of_birth']; ?>" required>
+                <input type="date" name="date_of_birth" value="<?php echo htmlspecialchars($tenant['date_of_birth']); ?>" required>
             </div>
 
             <div class="form-group">
@@ -203,12 +210,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
             <div class="form-group">
                 <label>Address:</label>
-                <textarea name="address"><?php echo $tenant['address']; ?></textarea>
+                <textarea name="address"><?php echo htmlspecialchars($tenant['address']); ?></textarea>
             </div>
 
             <div class="form-group">
                 <label>Phone:</label>
-                <input type="text" name="phone" value="<?php echo $tenant['phone']; ?>" pattern="0[0-9]{10}" title="Please enter exactly 11 digits starting with 0">
+                <input type="text" name="phone" value="<?php echo htmlspecialchars($tenant['phone']); ?>" pattern="0[0-9]{10}" title="Please enter exactly 11 digits starting with 0">
             </div>
 
             <div class="form-group">
@@ -221,7 +228,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </div>
 
     <script>
-        // Live Preview for New Profile Picture
         document.getElementById('uploadProfile').addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
@@ -235,4 +241,3 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     </script>
 </body>
 </html>
-

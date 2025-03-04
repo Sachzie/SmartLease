@@ -80,139 +80,93 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Apply for Lease</title>
     <style>
-        * {
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
         body {
-            background: #f4e1c5;
-            color: #5a3e2b;
-            padding-top: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
         }
-
         .container {
-            max-width: 1150px;
-            margin: 20px auto;
-            padding: 40px;
-            background: #e6c8a0;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            line-height: 1.6;
-            font-size: 17px;
-        }
-
-        h2 {
-            color: #5a3e2b;
-            margin-bottom: 20px;
-        }
-
-        .form-container {
             display: flex;
-            gap: 50px;
             justify-content: space-between;
+            align-items: flex-start;
+            width: 80%;
+            margin: 20px auto;
+            gap: 20px;
         }
-
-        .group-box {
-            flex: 1;
+        .box {
             background: white;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            text-align: left;
-            font-size: 14px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            width: 48%;
         }
-
-        .form-group {
-            margin-bottom: 20px;
+        h2 {
+            text-align: center;
         }
-
         label {
-            font-weight: 600;
-            color: #5a3e2b;
+            font-weight: bold;
             display: block;
-            margin-bottom: 8px;
+            margin-top: 10px;
         }
-
         input, select, textarea {
             width: 100%;
-            padding: 12px;
+            padding: 8px;
+            margin-top: 5px;
             border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 14px;
+            border-radius: 4px;
         }
-
         button {
-            width: 100%;
-            padding: 14px;
-            background: #5a3e2b;
+            background-color: #28a745;
             color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px;
+            width: 100%;
+            margin-top: 15px;
             cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
+            border-radius: 4px;
         }
-
         button:hover {
-            background: #4a2e1e;
+            background-color: #218838;
         }
-
-        @media (max-width: 768px) {
-            .form-container {
-                
-                flex-direction: column;
-            }
+        .message {
+            text-align: center;
+            color: green;
         }
     </style>
 </head>
 <body>
+
 <div class="container">
-    <h2>Apply for <?php echo htmlspecialchars($property['name']); ?></h2>
-    <?php if (!empty($message)) echo "<p class='message'>$message</p>"; ?>
+    <!-- Tenant Details Box -->
+    <div class="box">
+        <h2>Tenant Details</h2>
+        <p><strong>Name:</strong> <?php echo htmlspecialchars($tenant['name']); ?></p>
+        <p><strong>Email:</strong> <?php echo htmlspecialchars($tenant['email']); ?></p>
+        <p><strong>Address:</strong> <?php echo htmlspecialchars($tenant['address']); ?></p>
+        <p><strong>Phone:</strong> <?php echo htmlspecialchars($tenant['phone']); ?></p>
+    </div>
 
-    <div class="form-container">
-        <!-- Tenant Details Box -->
-        <div class="group-box">
-            <h3>Your Details</h3> <br>
-            <p><strong>Name:</strong> <?php echo htmlspecialchars($tenant['name']); ?></p> 
-            <p><strong>Email:</strong> <?php echo htmlspecialchars($tenant['email']); ?></p>
-            <p><strong>Address:</strong> <?php echo htmlspecialchars($tenant['address']); ?></p>
-            <p><strong>Phone:</strong> <?php echo htmlspecialchars($tenant['phone']); ?></p>
-        </div>
+    <!-- Lease Application Box -->
+    <div class="box">
+        <h2>Apply for <?php echo htmlspecialchars($property['name']); ?></h2>
+        <?php if (!empty($message)) echo "<p class='message'>$message</p>"; ?>
+        
+        <form method="post" enctype="multipart/form-data">
+            <label>Preferred Move-In Date:</label>
+            <input type="date" name="preferred_move_in_date" required>
 
-        <!-- Lease Application Box -->
-        <div class="group-box">
-            <h3>Application Form</h3>
-            <form method="post" enctype="multipart/form-data">
-                <div class="form-group">
-                    <label>Preferred Move-In Date:</label>
-                    <input type="date" name="preferred_move_in_date" required>
-                </div>
+            <label>Number of Occupants:</label>
+            <input type="number" name="num_occupants" min="1" required>
 
-                <div class="form-group">
-                    <label>Number of Occupants:</label>
-                    <input type="number" name="num_occupants" min="1" required>
-                </div>
+            <label>Additional Requests:</label>
+            <textarea name="additional_requests" rows="4"></textarea>
 
-                <div class="form-group">
-                    <label>Additional Requests:</label>
-                    <textarea name="additional_requests" rows="4"></textarea>
-                </div>
+            <label>Upload Valid ID:</label>
+            <input type="file" name="valid_id" required>
 
-                <div class="form-group">
-                    <label>Upload Valid ID:</label>
-                    <input type="file" name="valid_id" required>
-                </div>
-
-                <button type="submit">Submit Application</button>
-            </form>
-        </div>
+            <button type="submit">Submit Application</button>
+        </form>
     </div>
 </div>
 

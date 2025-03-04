@@ -25,7 +25,7 @@ $base_url = "/SmartLease/homepage";
             
             <li class="menu-header">Lease Management</li>
             <li><a href="<?php echo $base_url; ?>/mylease/lease.php">🏠 My Lease</a></li>
-            <li><a href="<?php echo $base_url; ?>/lease/payments.php">💰 Payments</a></li>
+            <li><a href="<?php echo $base_url; ?>/payments/payment.php">💰 Payments</a></li>
             
             <li class="menu-header">Maintenance & Support</li>
             <li><a href="<?php echo $base_url; ?>/maintenance/requests.php">🛠 Maintenance Requests</a></li>

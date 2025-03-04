@@ -86,112 +86,6 @@ $result = $stmt->get_result();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Applications</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
-
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4e1c5;
-            color: #5a3e2b;
-            padding-top: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            min-height: 100vh;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 30px;
-            background: #e6c8a0;
-            border-radius: 10px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-
-        h2 {
-            color: #5a3e2b;
-            margin-bottom: 20px;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-
-        table, th, td {
-            border: 1px solid #ddd;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: center;
-        }
-
-        th {
-            background: #5a3e2b;
-            color: white;
-        }
-
-        tr:nth-child(even) {
-            background: #f9f9f9;
-        }
-
-        .btn {
-            display: inline-block;
-            padding: 8px 12px;
-            text-decoration: none;
-            border-radius: 5px;
-            transition: 0.3s;
-            color: white;
-        }
-
-        .btn-check {
-            background: #5a3e2b;
-        }
-
-        .btn-resolve {
-            background: #e6c8a0;
-            border: none;
-            cursor: pointer;
-            padding: 8px 12px;
-            border-radius: 5px;
-        }
-
-        .btn-resolve:hover, .btn-check:hover {
-            opacity: 0.8;
-        }
-
-        .success, .error {
-            text-align: center;
-            font-weight: bold;
-            padding: 10px;
-            margin: 10px 0;
-        }
-
-        .success {
-            color: green;
-        }
-
-        .error {
-            color: red;
-        }
-
-        @media (max-width: 768px) {
-            table {
-                font-size: 14px;
-            }
-        }
-    </style>
 </head>
 <body>
 
@@ -199,11 +93,11 @@ $result = $stmt->get_result();
     <h2>Tenant Lease Applications</h2>
     
     <?php if (isset($success)): ?>
-        <p class="success"><?php echo htmlspecialchars($success); ?></p>
+        <p style="color: green;"><?php echo htmlspecialchars($success); ?></p>
     <?php endif; ?>
     
     <?php if (isset($error)): ?>
-        <p class="error"><?php echo htmlspecialchars($error); ?></p>
+        <p style="color: red;"><?php echo htmlspecialchars($error); ?></p>
     <?php endif; ?>
 
     <table>
@@ -221,15 +115,12 @@ $result = $stmt->get_result();
             <td><?php echo htmlspecialchars($row['tenant_email']); ?></td>
             <td><?php echo ucfirst($row['status']); ?></td>
             <td>
-                <a href="view.php?application_id=<?php echo $row['application_id']; ?>" class="btn btn-check">
-                    <i class="fas fa-eye"></i> Check
-                </a>
+                <a href="view.php?application_id=<?php echo $row['application_id']; ?>">Check</a>
+                
                 <?php if (strtolower($row['status']) === "in progress"): ?>
                     <form method="POST" action="" style="display:inline;">
                         <input type="hidden" name="application_id" value="<?php echo $row['application_id']; ?>">
-                        <button type="submit" class="btn btn-resolve">
-                            <i class="fas fa-check"></i> Resolve
-                        </button>
+                        <button type="submit">Resolve</button>
                     </form>
                 <?php endif; ?>
             </td>
